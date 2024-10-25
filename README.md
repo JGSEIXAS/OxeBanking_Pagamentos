@@ -1,18 +1,69 @@
-# Oxebanking
+# Oxebanking Pagamentos
 
-To start your Phoenix server:
+**Oxebanking Pagamentos** é o módulo de pagamentos desenvolvido como parte do projeto final de Internet Banking "Oxebanking" na disciplina **Conceitos de Linguagem e Programação** (CLP), lecionada no Instituto de Computação da **Universidade Federal de Alagoas (UFAL)**.
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Descrição
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Este módulo é responsável por gerenciar transações de pagamento, incluindo funcionalidades como criação, listagem e exibição de pagamentos realizados. O objetivo é facilitar as operações financeiras dos usuários do sistema de Internet Banking **Oxebanking**.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Tecnologias Utilizadas
 
-## Learn more
+- **Elixir**: Linguagem de programação funcional usada para desenvolvimento.
+- **Phoenix**: Framework web utilizado para construir a API.
+- **Ecto**: Biblioteca para interações com o banco de dados.
+- **PostgreSQL**: Sistema de gerenciamento de banco de dados relacional utilizado para armazenamento de dados.
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+## Integrantes
+
+- **João Gabriel Seixas Santos**
+- **Yuck Arthur Ferreira Silva**
+
+## Professor
+
+- **Rafael de Amorim Silva**
+
+## Requisitos
+
+Antes de executar o projeto, verifique se você possui as seguintes tecnologias instaladas:
+
+- Elixir >= 1.12
+- Phoenix >= 1.5
+- PostgreSQL >= 13.x
+
+## Instalação e Configuração
+
+1. Clone este repositório:
+
+    ```bash
+    git clone https://github.com/SEU_USUARIO/Oxebanking_Pagamentos.git
+    cd Oxebanking_Pagamentos
+    ```
+
+2. Instale as dependências:
+
+    ```bash
+    mix deps.get
+    ```
+
+3. Crie e migre o banco de dados:
+
+    ```bash
+    mix ecto.create
+    mix ecto.migrate
+    ```
+
+4. Inicie o servidor:
+
+    ```bash
+    mix phx.server
+    ```
+
+Agora você pode acessar a aplicação em `http://localhost:4000`.
+
+## Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para enviar pull requests.
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
