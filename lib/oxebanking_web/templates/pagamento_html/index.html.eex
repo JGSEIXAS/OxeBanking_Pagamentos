@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API de Pagamentos</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #343a40;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #495057;
+    }
+    input[type="number"],
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+      color: #495057;
+      background-color: #f8f9fa;
+    }
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #80bdff;
+      outline: none;
+      background-color: #fff;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .api-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .api-button:hover {
+      background-color: #0056b3;
+    }
+    #payments-list {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    #payments-list div {
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    #payments-list div:last-child {
+      border-bottom: none;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+      form {
+        padding: 20px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Faça um Pagamento</h1>
+  <form id="payment-form">
+    <label for="saldo">Saldo Atual:</label>
+    <input type="number" id="saldo" name="saldo" value="1000.00" readonly>
+
+    <label for="data_pagamento">Data de Pagamento:</label>
+    <input type="text" name="data_pagamento" required>
+
+    <label for="metodo_pagamento">Método de Pagamento:</label>
+    <select name="metodo_pagamento" id="metodo_pagamento" required>
+      <option value="boleto">Boleto</option>
+      <option value="pix">Pix</option>
+      <option value="debito">Débito</option>
+      <option value="credito">Crédito</option>
+    </select>
+
+    <label for="id_fatura">ID da Fatura:</label>
+    <input type="text" name="id_fatura" required>
+
+    <label for="valor">Valor:</label>
+    <input type="number" name="valor" step="0.01" min="0" required>
+
+    <label for="descricao">Descrição:</label>
+    <input type="text" name="descricao" required>
+
+    <div id="extra-fields">
+      <!-- Campos extras aparecerão aqui conforme a seleção -->
+    </div>
+
+    <button type="submit">Enviar Pagamento</button>
+  </form>
+  <a href="http://localhost:4000/api/pagamentos" class="api-button" id="view-payments">Ver Pagamentos</a>
+
+  <div id="payments-list">
+    <!-- Lista de pagamentos será atualizada aqui -->
+  </div>
+
+  <script>
+    const metodoPagamentoSelect = document.getElementById('metodo_pagamento');
+    const extraFieldsDiv = document.getElementById('extra-fields');
+    const saldoInput = document.getElementById('saldo');
+
+    function handleMetodoPagamentoChange() {
+      const selectedMetodo = metodoPagamentoSelect.value;
+      extraFieldsDiv.innerHTML = '';
+
+      if (selectedMetodo === 'pix') {
+        const destinatarioField = document.createElement('input');
+        destinatarioField.setAttribute('type', 'text');
+        destinatarioField.setAttribute('name', 'destinatario');
+        destinatarioField.setAttribute('placeholder', 'Destinatário (Pix)');
+        destinatarioField.required = true;
+        extraFieldsDiv.appendChild(destinatarioField);
+      } else if (selectedMetodo === 'credito') {
+        const faturaField = document.createElement('input');
+        faturaField.setAttribute('type', 'float');
+        faturaField.setAttribute('name', 'fatura_pendente');
+        faturaField.setAttribute('step', '0.01');
+        faturaField.setAttribute('placeholder', 'Fatura Pendente (Crédito)');
+        faturaField.required = true;
+        extraFieldsDiv.appendChild(faturaField);
+      }
+    }
+
+    function updateSaldoForDebitoBoleto() {
+      const valor = parseFloat(document.querySelector('input[name="valor"]').value || 0);
+      const saldoAtual = parseFloat(saldoInput.value || 0);
+
+      const metodoPagamento = metodoPagamentoSelect.value;
+      if (metodoPagamento === 'debito' || metodoPagamento === 'boleto') {
+        const saldoRestante = saldoAtual - valor;
+        alert(`Saldo restante após o pagamento: R$ ${saldoRestante.toFixed(2)}`);
+      }
+    }
+
+    metodoPagamentoSelect.addEventListener('change', handleMetodoPagamentoChange);
+    handleMetodoPagamentoChange();
+
+    document.getElementById('payment-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const data = {
+        saldo: parseFloat(saldoInput.value).toFixed(2),
+        data_pagamento: formData.get('data_pagamento'),
+        metodo_pagamento: formData.get('metodo_pagamento'),
+        id_fatura: formData.get('id_fatura'),
+        valor: parseFloat(formData.get('valor')).toFixed(2),
+        descricao: formData.get('descricao')
+      };
+
+      if (formData.get('metodo_pagamento') === 'pix') {
+        data.destinatario = formData.get('destinatario');
+      } else if (formData.get('metodo_pagamento') === 'credito') {
+        const faturaPendente = parseFloat(formData.get('fatura_pendente') || 0);
+        const valorAtual = parseFloat(data.valor);
+        const valorTotalCredito = faturaPendente + valorAtual;
+        data.fatura_pendente = valorTotalCredito.toFixed(2);
+      } else if (formData.get('metodo_pagamento') === 'debito' || formData.get('metodo_pagamento') === 'boleto') {
+        const saldoRestante = parseFloat(saldoInput.value) - parseFloat(data.valor);
+        data.saldo_restante = saldoRestante.toFixed(2);
+      }
+
+      try {
+        const response = await fetch('/api/pagamentos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Pagamento enviado com sucesso!');
+          updateSaldoForDebitoBoleto();
+          updatePaymentsList();
+        } else {
+          alert(`Erro: ${result.motivo || 'Dados de pagamento inválidos.'}`);
+        }
+      } catch (error) {
+        alert('Ocorreu um erro ao enviar o pagamento. Tente novamente.');
+      }
+    });
+
+    async function updatePaymentsList() {
+      try {
+        const response = await fetch('/api/pagamentos');
+        const payments = await response.json();
+        const paymentsList = document.getElementById('payments-list');
+        paymentsList.innerHTML = '';
+
+        if (payments.status === 'sucesso' && Array.isArray(payments.dados)) {
+          payments.dados.forEach(payment => {
+            const paymentItem = document.createElement('div');
+            paymentItem.textContent = `ID: ${payment.id}, Data: ${payment.data_pagamento}, Método: ${payment.metodo_pagamento}, Fatura: ${payment.id_fatura}, Valor: ${payment.valor}, Descrição: ${payment.descricao}`;
+            paymentsList.appendChild(paymentItem);
+          });
+        } else {
+          paymentsList.textContent = 'Nenhum pagamento encontrado.';
+        }
+      } catch (error) {
+        alert('Erro ao carregar pagamentos.');
+      }
+    }
+  </script>
+
+</body>
+</html>

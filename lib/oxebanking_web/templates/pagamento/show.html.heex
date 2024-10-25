@@ -1,0 +1,14 @@
+<h1>Detalhes do Pagamento</h1>
+<p>ID: <%= @pagamento.id %></p>
+<p>ID da Fatura: <%= @pagamento.id_fatura %></p>
+<p>Método de Pagamento: <%= @pagamento.metodo_pagamento %></p>
+<p>Valor: <%= @pagamento.valor %></p>
+<p>Descrição: <%= @pagamento.descricao %></p>
+<% if @pagamento.destinatario_pix do %>
+  <p>Destinatário PIX: <%= @pagamento.destinatario_pix %></p>
+<% end %>
+<% if @pagamento.fatura_pendente do %>
+  <p>Fatura Pendente: <%= @pagamento.fatura_pendente %></p>
+<% end %>
+<p>Criado em: <%= @pagamento.inserted_at %></p>
+<p>Atualizado em: <%= @pagamento.updated_at %></p>
