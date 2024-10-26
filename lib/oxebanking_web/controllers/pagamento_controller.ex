@@ -20,7 +20,7 @@ defmodule OxebankingWeb.PagamentoController do
 
   def criar(conn, %{
     "descricao" => descricao,
-    "id_fatura" => id_fatura,
+    "id_usuario" => id_usuario,
     "metodo_pagamento" => metodo_pagamento,
     "valor" => valor,
     "saldo" => saldo  # Adicione o saldo como parâmetro
@@ -39,7 +39,7 @@ defmodule OxebankingWeb.PagamentoController do
       # Processando os dados de pagamento
       dados_pagamento = case metodo_pagamento do
         "pix" -> %{
-          "id_fatura" => id_fatura,
+          "id_usuario" => id_usuario,
           "metodo_pagamento" => metodo_pagamento,
           "valor" => valor_float,
           "descricao" => descricao,
@@ -51,14 +51,14 @@ defmodule OxebankingWeb.PagamentoController do
           IO.inspect(fatura_pendente_float, label: "Fatura Pendente Processada")
 
           %{
-            "id_fatura" => id_fatura,
+            "id_usuario" => id_usuario,
             "metodo_pagamento" => metodo_pagamento,
             "valor" => valor_float,
             "descricao" => descricao,
             "fatura_pendente" => valor_float + fatura_pendente_float
           }
         _ -> %{
-          "id_fatura" => id_fatura,
+          "id_usuario" => id_usuario,
           "metodo_pagamento" => metodo_pagamento,
           "valor" => valor_float,
           "descricao" => descricao
@@ -98,8 +98,8 @@ defmodule OxebankingWeb.PagamentoController do
     |> json(%{status: "sucesso", dados: pagamentos})
   end
 
-  def mostrar(conn, %{"id" => id_fatura}) do
-    case Pagamentos.buscar_pagamento(id_fatura) do
+  def mostrar(conn, %{"id" => id_usuario}) do
+    case Pagamentos.buscar_pagamento(id_usuario) do
       nil ->
         conn
         |> put_status(:not_found)

@@ -3,7 +3,7 @@ defmodule Oxebanking.Repo.Migrations.CriarPagamentos do
 
   def change do
     create table(:pagamentos) do
-      add :id_fatura, :integer
+      add :id_usuario, :integer
       add :metodo_pagamento, :string
       add :valor, :float
       add :descricao, :string

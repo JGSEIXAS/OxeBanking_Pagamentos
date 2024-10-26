@@ -132,8 +132,8 @@
       <option value="credito">Crédito</option>
     </select>
 
-    <label for="id_fatura">ID da Fatura:</label>
-    <input type="text" name="id_fatura" required>
+    <label for="id_usuario">ID do usuário:</label>
+    <input type="text" name="id_usuario" required>
 
     <label for="valor">Valor:</label>
     <input type="number" name="valor" step="0.01" required>
@@ -202,7 +202,7 @@
         saldo: parseFloat(saldoInput.value).toFixed(2),
         data_pagamento: formData.get('data_pagamento'),
         metodo_pagamento: formData.get('metodo_pagamento'),
-        id_fatura: formData.get('id_fatura'),
+        id_usuario: formData.get('id_usuario'),
         valor: parseFloat(formData.get('valor')).toFixed(2),
         descricao: formData.get('descricao')
       };
@@ -258,7 +258,7 @@
         if (payments.status === 'sucesso' && Array.isArray(payments.dados)) {
           payments.dados.forEach(payment => {
             const paymentItem = document.createElement('div');
-            paymentItem.textContent = `ID: ${payment.id}, Data: ${payment.data_pagamento}, Método: ${payment.metodo_pagamento}, Fatura: ${payment.id_fatura}, Valor: ${payment.valor}, Descrição: ${payment.descricao}`;
+            paymentItem.textContent = `ID: ${payment.id}, Data: ${payment.data_pagamento}, Método: ${payment.metodo_pagamento}, Fatura: ${payment.id_usuario}, Valor: ${payment.valor}, Descrição: ${payment.descricao}`;
             paymentsList.appendChild(paymentItem);
           });
         } else {

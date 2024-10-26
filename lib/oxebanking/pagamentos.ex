@@ -1,6 +1,7 @@
 defmodule Oxebanking.Pagamentos do
+  import Ecto.Query, only: [from: 2]
   alias Oxebanking.Repo
-  alias Oxebanking.Pagamentos.Pagamento  # Certifique-se de que estamos fazendo alias corretamente
+  alias Oxebanking.Pagamentos.Pagamento
 
   @doc """
   Processa um pagamento com todos os dados fornecidos.
@@ -12,11 +13,14 @@ defmodule Oxebanking.Pagamentos do
   end
 
  @doc """
-  Busca um pagamento pelo ID da fatura (id_fatura).
+  Busca um pagamento pelo ID da fatura (id_usuario).
   """
-  def buscar_pagamento(id_fatura) do
-    Repo.get_by(Pagamento, id_fatura: id_fatura)
-  end
+# Função para buscar pagamentos por id_usuario (vários resultados)
+def buscar_pagamento(id_usuario) do
+  query = from(p in Pagamento, where: p.id_usuario == ^id_usuario)
+  Repo.all(query)
+end
+
 
   @doc """
   Lista todos os pagamentos armazenados no banco de dados.

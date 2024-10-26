@@ -8,8 +8,9 @@ config :oxebanking, Oxebanking.Repo,
   database: "oxebanking_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
+  pool_size: 20,  # Ajuste conforme necessário
+  queue_target: 5000,  # Espera máxima na fila
+  queue_interval: 10000
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

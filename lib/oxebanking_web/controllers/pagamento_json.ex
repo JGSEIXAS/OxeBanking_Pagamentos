@@ -21,7 +21,7 @@ defmodule OxebankingWeb.PagamentoJSON do
       descricao: pagamento.descricao,
       valor: pagamento.valor,
       metodo_pagamento: pagamento.metodo_pagamento,
-      id_fatura: pagamento.id_fatura
+      id_usuario: pagamento.id_usuario
     }
   end
 end
