@@ -23,8 +23,7 @@ defmodule OxebankingWeb.PagamentoController do
     "id_usuario" => id_usuario,
     "metodo_pagamento" => metodo_pagamento,
     "valor" => valor,
-    "saldo" => saldo,  # Adicione o saldo como parâmetro
-    "codigo_barras" => codigo_barras
+    "saldo" => saldo  # Adicione o saldo como parâmetro
   } = params) do
     IO.inspect(params, label: "Parâmetros Recebidos")
 
@@ -39,14 +38,6 @@ defmodule OxebankingWeb.PagamentoController do
     else
       # Processando os dados de pagamento
       dados_pagamento = case metodo_pagamento do
-        "boleto" -> %{
-          "id_usuario" => id_usuario,
-          "metodo_pagamento" => metodo_pagamento,
-          "valor" => valor_float,
-          "descricao" => descricao,
-          "codigo_barras" => codigo_barras # Utilize o campo 'codigo_barras'
-        }
-
         "pix" -> %{
           "id_usuario" => id_usuario,
           "metodo_pagamento" => metodo_pagamento,
