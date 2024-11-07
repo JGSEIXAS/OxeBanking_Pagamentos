@@ -23,8 +23,7 @@ defmodule OxebankingWeb.PagamentoController do
     "id_usuario" => id_usuario,
     "metodo_pagamento" => metodo_pagamento,
     "valor" => valor,
-    "saldo" => saldo,  # Adicione o saldo como parâmetro
-    "codigo_barras" => codigo_barras
+    "saldo" => saldo
   } = params) do
     IO.inspect(params, label: "Parâmetros Recebidos")
 
@@ -39,26 +38,28 @@ defmodule OxebankingWeb.PagamentoController do
     else
       # Processando os dados de pagamento
       dados_pagamento = case metodo_pagamento do
-        "boleto" -> %{
-          "id_usuario" => id_usuario,
-          "metodo_pagamento" => metodo_pagamento,
-          "valor" => valor_float,
-          "descricao" => descricao,
-          "codigo_barras" => codigo_barras # Utilize o campo 'codigo_barras'
-        }
-
         "pix" -> %{
           "id_usuario" => id_usuario,
           "metodo_pagamento" => metodo_pagamento,
           "valor" => valor_float,
           "descricao" => descricao,
-          "destinatario_pix" => Map.get(params, "destinatario")
+          "destinatario" => Map.get(params, "destinatario")
+        }
+        "boleto" -> %{
+          "id_usuario" => id_usuario,
+          "metodo_pagamento" => metodo_pagamento,
+          "valor" => valor_float,
+          "descricao" => descricao,
+          "codigo_barras" => Map.get(params, "codigo_barras")
+        }
+        "debito" -> %{
+          "id_usuario" => id_usuario,
+          "metodo_pagamento" => metodo_pagamento,
+          "valor" => valor_float,
+          "descricao" => descricao
         }
         "credito" ->
-          # Pega `fatura_pendente` ou define como 0.0
           fatura_pendente_float = Map.get(params, "fatura_pendente", "0.00") |> String.to_float()
-          IO.inspect(fatura_pendente_float, label: "Fatura Pendente Processada")
-
           %{
             "id_usuario" => id_usuario,
             "metodo_pagamento" => metodo_pagamento,

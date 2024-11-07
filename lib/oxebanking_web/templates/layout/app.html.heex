@@ -158,27 +158,34 @@
     const extraFieldsDiv = document.getElementById('extra-fields');
     const saldoInput = document.getElementById('saldo');
 
-    function handleMetodoPagamentoChange() {
-      const selectedMetodo = metodoPagamentoSelect.value;
-      extraFieldsDiv.innerHTML = '';
+function handleMetodoPagamentoChange() {
+  const selectedMetodo = metodoPagamentoSelect.value;
+  extraFieldsDiv.innerHTML = ''; // Limpa os campos adicionais a cada seleção
 
-      if (selectedMetodo === 'pix') {
-        const destinatarioField = document.createElement('input');
-        destinatarioField.setAttribute('type', 'text');
-        destinatarioField.setAttribute('name', 'destinatario');
-        destinatarioField.setAttribute('placeholder', 'Destinatário (Pix)');
-        destinatarioField.required = true;
-        extraFieldsDiv.appendChild(destinatarioField);
-      } else if (selectedMetodo === 'credito') {
-        const faturaField = document.createElement('input');
-        faturaField.setAttribute('type', 'number');
-        faturaField.setAttribute('name', 'fatura_pendente');
-        faturaField.setAttribute('step', '0.01');
-        faturaField.setAttribute('placeholder', 'Fatura Pendente (Crédito)');
-        faturaField.required = true;
-        extraFieldsDiv.appendChild(faturaField);
-      }
-    }
+  if (selectedMetodo === 'pix') {
+    const destinatarioField = document.createElement('input');
+    destinatarioField.setAttribute('type', 'text');
+    destinatarioField.setAttribute('name', 'destinatario');
+    destinatarioField.setAttribute('placeholder', 'Destinatário (Pix)');
+    destinatarioField.required = true;
+    extraFieldsDiv.appendChild(destinatarioField);
+  } else if (selectedMetodo === 'credito') {
+    const faturaField = document.createElement('input');
+    faturaField.setAttribute('type', 'number');
+    faturaField.setAttribute('name', 'fatura_pendente');
+    faturaField.setAttribute('step', '0.01');
+    faturaField.setAttribute('placeholder', 'Fatura Pendente (Crédito)');
+    faturaField.required = true;
+    extraFieldsDiv.appendChild(faturaField);
+  } else if (selectedMetodo === 'boleto') {
+    const codigoBarrasField = document.createElement('input');
+    codigoBarrasField.setAttribute('type', 'text');
+    codigoBarrasField.setAttribute('name', 'codigo_barras');
+    codigoBarrasField.setAttribute('placeholder', 'Código de Barras (Boleto)');
+    codigoBarrasField.required = true;
+    extraFieldsDiv.appendChild(codigoBarrasField);
+  }
+}
 
     function updateSaldoForDebitoBoleto() {
       const valor = parseFloat(document.querySelector('input[name="valor"]').value || 0);
@@ -194,80 +201,75 @@
     metodoPagamentoSelect.addEventListener('change', handleMetodoPagamentoChange);
     handleMetodoPagamentoChange();
 
-    document.getElementById('payment-form').addEventListener('submit', async function(event) {
-      event.preventDefault();
-      
-      const formData = new FormData(event.target);
-      const data = {
-        saldo: parseFloat(saldoInput.value).toFixed(2),
-        data_pagamento: formData.get('data_pagamento'),
-        metodo_pagamento: formData.get('metodo_pagamento'),
-        id_usuario: formData.get('id_usuario'),
-        valor: parseFloat(formData.get('valor')).toFixed(2),
-        descricao: formData.get('descricao')
-      };
+document.getElementById('payment-form').addEventListener('submit', async function(event) {
+  event.preventDefault();
 
-      if (formData.get('metodo_pagamento') === 'pix') {
-        data.destinatario = formData.get('destinatario');
-      } else if (formData.get('metodo_pagamento') === 'credito') {
-        const faturaPendente = parseFloat(formData.get('fatura_pendente') || 0);
-        const valorAtual = parseFloat(data.valor);
-        const valorTotalCredito = faturaPendente + valorAtual;
-        data.fatura_pendente = valorTotalCredito.toFixed(2);
-        console.log("Dados enviados para crédito:", data);
-      } else if (formData.get('metodo_pagamento') === 'debito' || formData.get('metodo_pagamento') === 'boleto') {
-        const saldoRestante = parseFloat(saldoInput.value) - parseFloat(data.valor);
-        data.saldo_restante = saldoRestante.toFixed(2);
-      }
+  const formData = new FormData(event.target);
+  const data = {
+    saldo: parseFloat(saldoInput.value).toFixed(2),
+    data_pagamento: formData.get('data_pagamento'),
+    metodo_pagamento: formData.get('metodo_pagamento'),
+    id_usuario: formData.get('id_usuario'),
+    valor: parseFloat(formData.get('valor')).toFixed(2),
+    descricao: formData.get('descricao')
+  };
 
-      try {
-        const response = await fetch('/api/pagamentos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
+  if (formData.get('metodo_pagamento') === 'pix') {
+    data.destinatario = formData.get('destinatario');
+  } else if (formData.get('metodo_pagamento') === 'credito') {
+    const faturaPendente = parseFloat(formData.get('fatura_pendente') || 0);
+    data.fatura_pendente = (faturaPendente + parseFloat(data.valor)).toFixed(2);
+  } else if (formData.get('metodo_pagamento') === 'boleto') {
+    data.codigo_barras = formData.get('codigo_barras');
+  }
 
-        const result = await response.json();
+  try {
+    const response = await fetch('/api/pagamentos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
 
-        if (response.ok) {
-          alert('Pagamento enviado com sucesso!');
-          window.scrollTo(0, 0); // Adicione esta linha para prevenir o scroll
-          updateSaldoForDebitoBoleto();
-          updatePaymentsList();
-        } else {
-          if (result.motivo && typeof result.motivo === 'object') {
-            alert(`Erro: ${JSON.stringify(result.motivo)}`);
-          } else {
-            alert(`Erro: ${result.motivo || 'Dados de pagamento inválidos.'}`);
-          }
-                  }
-                } catch (error) {
-                  alert('Ocorreu um erro ao enviar o pagamento. Tente novamente.');
-                }
-              });
-
-    async function updatePaymentsList() {
-      try {
-        const response = await fetch('/api/pagamentos');
-        const payments = await response.json();
-        const paymentsList = document.getElementById('payments-list');
-        paymentsList.innerHTML = '';
-
-        if (payments.status === 'sucesso' && Array.isArray(payments.dados)) {
-          payments.dados.forEach(payment => {
-            const paymentItem = document.createElement('div');
-            paymentItem.textContent = `ID: ${payment.id}, Data: ${payment.data_pagamento}, Método: ${payment.metodo_pagamento}, Fatura: ${payment.id_usuario}, Valor: ${payment.valor}, Descrição: ${payment.descricao}`;
-            paymentsList.appendChild(paymentItem);
-          });
-        } else {
-          paymentsList.textContent = 'Nenhum pagamento encontrado.';
-        }
-      } catch (error) {
-        alert('Erro ao carregar pagamentos.');
-      }
+    const result = await response.json();
+    if (response.ok) {
+      alert('Pagamento enviado com sucesso!');
+      window.scrollTo(0, 0); // Adicione esta linha para prevenir o scroll
+      updateSaldoForDebitoBoleto();
+      updatePaymentsList();
+    } else {
+      alert(`Erro: ${result.motivo || 'Dados de pagamento inválidos.'}`);
     }
+  } catch (error) {
+    alert('Ocorreu um erro ao enviar o pagamento. Tente novamente.');
+  }
+});
+async function updatePaymentsList() {
+  try {
+    const response = await fetch('/api/pagamentos');
+    const payments = await response.json();
+    const paymentsList = document.getElementById('payments-list');
+    paymentsList.innerHTML = '';
+
+    if (payments.status === 'sucesso' && Array.isArray(payments.dados)) {
+      payments.dados.forEach(payment => {
+        const paymentItem = document.createElement('div');
+        paymentItem.textContent = `ID: ${payment.id}, Data: ${payment.data_pagamento}, Método: ${payment.metodo_pagamento}, Valor: ${payment.valor}, Descrição: ${payment.descricao}`;
+        
+        if (payment.metodo_pagamento === 'boleto') {
+          paymentItem.textContent += `, Código de Barras: ${payment.codigo_barras}`;
+        }
+
+        paymentsList.appendChild(paymentItem);
+      });
+    } else {
+      paymentsList.textContent = 'Nenhum pagamento encontrado.';
+    }
+  } catch (error) {
+    alert('Erro ao carregar pagamentos.');
+  }
+}
   </script>
 
 </body>

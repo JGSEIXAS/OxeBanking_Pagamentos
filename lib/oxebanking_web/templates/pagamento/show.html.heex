@@ -4,8 +4,11 @@
 <p>Método de Pagamento: <%= @pagamento.metodo_pagamento %></p>
 <p>Valor: <%= @pagamento.valor %></p>
 <p>Descrição: <%= @pagamento.descricao %></p>
-<% if @pagamento.destinatario_pix do %>
-  <p>Destinatário PIX: <%= @pagamento.destinatario_pix %></p>
+<% if @pagamento.codigo_barras do %>
+  <p>Código de Barras: <%= @pagamento.codigo_barras %></p>
+<% end %>
+<% if @pagamento.destinatario do %>
+  <p>Destinatário: <%= @pagamento.destinatario %></p>
 <% end %>
 <% if @pagamento.fatura_pendente do %>
   <p>Fatura Pendente: <%= @pagamento.fatura_pendente %></p>
