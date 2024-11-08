@@ -16,7 +16,7 @@ defmodule Oxebanking.PagamentosFixtures do
         status: "some status",
         valor: 120.5
       })
-      |> Oxebanking.Pagamentos.create_pagamento()
+      |> Oxebanking.Pagamentos.processar_pagamento()
 
     pagamento
   end

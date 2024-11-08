@@ -23,7 +23,7 @@ defmodule OxebankingWeb.Router do
   scope "/", OxebankingWeb do
     pipe_through :browser
 
-    get "/pagamentos", PagamentoController, :index
+    get "/", PagamentoController, :index
     get "/pagamentos", PagamentoController, :index
     get "/pagamentos/:id", PagamentoController, :show
   end
