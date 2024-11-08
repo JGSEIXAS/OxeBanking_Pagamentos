@@ -217,9 +217,11 @@ document.getElementById('payment-form').addEventListener('submit', async functio
   if (formData.get('metodo_pagamento') === 'pix') {
     data.destinatario = formData.get('destinatario');
   } else if (formData.get('metodo_pagamento') === 'credito') {
-    const faturaPendente = parseFloat(formData.get('fatura_pendente') || 0);
-    data.fatura_pendente = (faturaPendente + parseFloat(data.valor)).toFixed(2);
-  } else if (formData.get('metodo_pagamento') === 'boleto') {
+    const valorPagamento = parseFloat(formData.get('valor'));
+    const faturaAtual = parseFloat(formData.get('fatura_pendente') || 0);
+    data.fatura_pendente = (faturaAtual).toFixed(2);
+    } 
+    else if (formData.get('metodo_pagamento') === 'boleto') {
     data.codigo_barras = formData.get('codigo_barras');
   }
 
